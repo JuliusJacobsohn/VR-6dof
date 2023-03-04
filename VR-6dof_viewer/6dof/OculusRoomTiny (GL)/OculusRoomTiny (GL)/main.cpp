@@ -149,17 +149,17 @@ static int Compare(const ovrGraphicsLuid& lhs, const ovrGraphicsLuid& rhs)
 
 double clockToMilliseconds(clock_t ticks) {
 	// units/(units/time) => time (seconds) * 1000 = milliseconds
-	return (ticks / (double)CLOCKS_PER_SEC)*1000.0;
+	return (ticks / (double)CLOCKS_PER_SEC) * 1000.0;
 }
 
 // return true to retry later (e.g. after display lost)
 static bool MainLoop(bool retryCreate)
 {
-	TextureBuffer * eyeRenderTexture[2] = { nullptr, nullptr };
-	DepthBuffer   * eyeDepthBuffer[2] = { nullptr, nullptr };
+	TextureBuffer* eyeRenderTexture[2] = { nullptr, nullptr };
+	DepthBuffer* eyeDepthBuffer[2] = { nullptr, nullptr };
 	ovrMirrorTexture mirrorTexture = nullptr;
 	GLuint          mirrorFBO = 0;
-	Scene         * roomScene = nullptr;
+	Scene* roomScene = nullptr;
 	long long frameIndex = 0;
 
 	ovrSession session;
@@ -172,7 +172,7 @@ static bool MainLoop(bool retryCreate)
 	{
 		VALIDATE(false, "OpenGL supports only the default graphics adapter.");
 	}
-	
+
 	ovrHmdDesc hmdDesc = ovr_GetHmdDesc(session);
 
 	// Setup Window and Graphics
@@ -182,15 +182,15 @@ static bool MainLoop(bool retryCreate)
 	if (!Platform.InitDevice(windowSize.w, windowSize.h, reinterpret_cast<LUID*>(&luid)))
 		goto Done;
 
-	
+
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	//CREATE VIDEO THREAD
 	GLuint mFront_left, mFront_dleft, mFront_aleft, mBack_left, mBack_dleft, mBack_bg, mFront_bg, mFront_bgd, mBack_bgd, mFront_bbg, mBack_bbg, mFront_bbgd, mBack_bbgd, mBack_aleft, black_text, bga_text;
 	bool fl_write = false;
 	bool fl_terminate = false;
 	bool pause_all = false;
-	ARGS args = { &mFront_left, &mFront_dleft, &mFront_aleft, &mFront_bg, &mFront_bgd, &mFront_bbg, &mFront_bbgd, &mBack_left, &mBack_dleft, &mBack_aleft, &mBack_bg, &mBack_bgd, &mBack_bbg, &mBack_bbgd, &black_text, &bga_text, &fl_write, &fl_terminate, &pause_all};
-	
+	ARGS args = { &mFront_left, &mFront_dleft, &mFront_aleft, &mFront_bg, &mFront_bgd, &mFront_bbg, &mFront_bbgd, &mBack_left, &mBack_dleft, &mBack_aleft, &mBack_bg, &mBack_bgd, &mBack_bbg, &mBack_bbgd, &black_text, &bga_text, &fl_write, &fl_terminate, &pause_all };
+
 	HANDLE threadDecoding;
 	threadDecoding = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)VideoThread, &args, 0, NULL);
 	///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -236,7 +236,7 @@ static bool MainLoop(bool retryCreate)
 	// Turn off vsync to let the compositor do its magic
 	wglSwapIntervalEXT(0);
 
-	
+
 	// FloorLevel will give tracking poses where the floor height is 0
 	ovr_SetTrackingOriginType(session, ovrTrackingOrigin_FloorLevel);
 	ovrTrackingState TrackingState;
@@ -250,7 +250,7 @@ static bool MainLoop(bool retryCreate)
 	// Make scene
 	roomScene = new Scene(false, TrackingState.HeadPose.ThePose.Position, SphereSize);
 	Vector2f ScreenSize(hmdDesc.Resolution.w, hmdDesc.Resolution.h);
-	
+
 	//Pass the video texture each frame to the render call
 	//For now we are only passing the first image	
 	clock_t beginFrame = clock();
@@ -268,15 +268,15 @@ static bool MainLoop(bool retryCreate)
 	double DistZ = 0.0;
 	double circle = 0.0;
 	double radius = 100.0;
-	double th = 0.17*0.17;
+	double th = 0.17 * 0.17;
 	clock_t StartTime = clock();
 	clock_t SpentTime = 0;
 	bool starting = true;
 	while (Platform.HandleMessages())
-	{ 
+	{
 		ovrSessionStatus sessionStatus;
-		ovr_GetSessionStatus(session, &sessionStatus);		
-		
+		ovr_GetSessionStatus(session, &sessionStatus);
+
 		if (starting == true & sessionStatus.HmdMounted)
 		{
 			Sleep(1500.0f);
@@ -286,7 +286,7 @@ static bool MainLoop(bool retryCreate)
 			starting = false;
 
 		}
-	
+
 		/*if (fl_terminate == true)
 		{
 			//headpose << std::endl;
@@ -335,32 +335,32 @@ static bool MainLoop(bool retryCreate)
 		{
 
 			if (Platform.Key['T'])
-			{				
+			{
 				TrackingState = ovr_GetTrackingState(session, frameIndex, ovrFalse);
 				roomScene->Models[0]->Pos = TrackingState.HeadPose.ThePose.Position;
 				spherecenter = TrackingState.HeadPose.ThePose.Position;
 				positional_track = true;
 			}
 			if (Platform.Key['Y'])
-			{				
+			{
 				TrackingState = ovr_GetTrackingState(session, frameIndex, ovrFalse);
 				roomScene->Models[0]->Pos = TrackingState.HeadPose.ThePose.Position;
 				spherecenter = TrackingState.HeadPose.ThePose.Position;
 				positional_track = false;
 			}
-			
+
 			if (Platform.Key['C']) {
 				colored = !colored;
 				Platform.Key['C'] = false;
 			}
-						
+
 			if (Platform.Key['R'])
 			{
-					TrackingState = ovr_GetTrackingState(session, frameIndex, ovrFalse);
-					roomScene->Models[0]->Pos = TrackingState.HeadPose.ThePose.Position;
-					spherecenter = TrackingState.HeadPose.ThePose.Position;
+				TrackingState = ovr_GetTrackingState(session, frameIndex, ovrFalse);
+				roomScene->Models[0]->Pos = TrackingState.HeadPose.ThePose.Position;
+				spherecenter = TrackingState.HeadPose.ThePose.Position;
 			}
-			
+
 
 			// Call ovr_GetRenderDesc each frame to get the ovrEyeRenderDesc, as the returned values (e.g. HmdToEyeOffset) may change at runtime.
 			ovrEyeRenderDesc eyeRenderDesc[2];
@@ -378,8 +378,8 @@ static bool MainLoop(bool retryCreate)
 			ovrPosef FinalEyePosCentered[2];
 			ovrPosef FinalEyePosDefCam[2];
 			ovr_CalcEyePoses(TrackingState.HeadPose.ThePose, HmdToEyeOffset, FinalEyePos);//Output: FinalEyePose --> Final Orientation and Position (head & IPD offset)
-			
-			
+
+
 			// Render Scene to Eye Buffers
 			for (int eye = 0; eye < 2; ++eye)
 			{
@@ -388,9 +388,9 @@ static bool MainLoop(bool retryCreate)
 				Vector3f finalForwardDef;
 				// Switch to eye render target
 				eyeRenderTexture[eye]->SetAndClearRenderSurface(eyeDepthBuffer[eye]);
-				 
-							
-				Matrix4f rollPitchYaw = Matrix4f(FinalEyePos[eye].Orientation);				
+
+
+				Matrix4f rollPitchYaw = Matrix4f(FinalEyePos[eye].Orientation);
 				Vector3f EyePos = FinalEyePos[eye].Position;
 				Vector3f finalUp = rollPitchYaw.Transform(Vector3f(0, 1, 0));//
 				Vector3f finalForward = rollPitchYaw.Transform(Vector3f(0, 0, -1));//				
@@ -405,15 +405,15 @@ static bool MainLoop(bool retryCreate)
 					DistX = (spherecenter.x - TrackingState.HeadPose.ThePose.Position.x);
 					DistZ = (spherecenter.z - TrackingState.HeadPose.ThePose.Position.z);
 					DistY = (spherecenter.y - TrackingState.HeadPose.ThePose.Position.y);
-					circle = DistX*DistX + DistZ*DistZ;
+					circle = DistX * DistX + DistZ * DistZ;
 					double th_mult = 5;
 					if (circle > th)
 					{
-						desat = float(th_mult*circle);
+						desat = float(th_mult * circle);
 						desat = fmin(desat, 1.0);
 					}
-				}				
-				
+				}
+
 				if (positional_track == true & render_simple == false)
 				{
 					roomScene->Render(ScreenSize, spherecenter, EyePos, HeadPos, view, proj, eye, poly_mesh, stereo, render_depth, colored, layers, desat, args);
@@ -427,32 +427,32 @@ static bool MainLoop(bool retryCreate)
 					Vector3f EyePosCentered = FinalEyePosCentered[eye].Position;
 					Matrix4f viewCentered = Matrix4f::LookAtRH(EyePosCentered, EyePosCentered + finalForward, finalUp);
 					roomScene->RenderSimple(ScreenSize, spherecenter, EyePos, HeadPos, viewCentered, proj, eye, poly_mesh, stereo, render_depth, colored, layers, desat, args);
-				}				
+				}
 
 				if (positional_track == true & render_simple == true)
 				{
 					roomScene->RenderSimple(ScreenSize, spherecenter, EyePos, HeadPos, view, proj, eye, poly_mesh, stereo, render_depth, colored, layers, desat, args);
 
 				}
-				
-				
-				if (vis_fade == true )
+
+
+				if (vis_fade == true)
 				{
 					double DistX = (spherecenter.x - TrackingState.HeadPose.ThePose.Position.x);
 					double DistZ = (spherecenter.z - TrackingState.HeadPose.ThePose.Position.z);
 					double DistY = (spherecenter.y - TrackingState.HeadPose.ThePose.Position.y);
-					double circle = DistX*DistX + DistZ*DistZ + DistY*DistY;
+					double circle = DistX * DistX + DistZ * DistZ + DistY * DistY;
 					double th_mult = 10;
 					float radius = 0.35;
 					bool isblack = false;
 					if (circle > th)
 					{
-						roomScene->RenderBlack(ScreenSize, spherecenter, EyePos, HeadPos, view, proj, eye, poly_mesh, stereo, render_depth, colored, layers,th_mult*circle, radius, isblack, args);
+						roomScene->RenderBlack(ScreenSize, spherecenter, EyePos, HeadPos, view, proj, eye, poly_mesh, stereo, render_depth, colored, layers, th_mult * circle, radius, isblack, args);
 						if (circle > (1.0 / th_mult))
 						{
 							isblack = true;
 							radius = 0.8;
-							roomScene->RenderBlack(ScreenSize, spherecenter, EyePos, HeadPos, view, proj, eye, poly_mesh, stereo, render_depth, colored, layers, th_mult*circle, radius, isblack, args);
+							roomScene->RenderBlack(ScreenSize, spherecenter, EyePos, HeadPos, view, proj, eye, poly_mesh, stereo, render_depth, colored, layers, th_mult * circle, radius, isblack, args);
 						}
 					}
 
@@ -523,273 +523,273 @@ Done:
 //Thread for handling video decoding
 void VideoThread(LPVOID pArgs_)
 {
-/*
-Decode video frame
-Upload frame to back texture
-Swap front and back textures
-*/
-wglMakeCurrent(Platform.hDC, Platform.WglContext_VideoThread);
-OVR::GLEContext::SetCurrentContext(&Platform.GLEContext);
-Platform.GLEContext.Init();
+	/*
+	Decode video frame
+	Upload frame to back texture
+	Swap front and back textures
+	*/
+	wglMakeCurrent(Platform.hDC, Platform.WglContext_VideoThread);
+	OVR::GLEContext::SetCurrentContext(&Platform.GLEContext);
+	Platform.GLEContext.Init();
 
-ARGS *pArgs = (ARGS*)pArgs_;
-GLuint *mFront_left = pArgs->mFront_left;
-GLuint *mFront_dleft = pArgs->mFront_dleft;
-GLuint *mFront_aleft = pArgs->mFront_aleft;
-GLuint *mFront_bg = pArgs->mFront_bg;
-GLuint *mFront_bgd = pArgs->mFront_bgd;
-GLuint *mFront_bbg = pArgs->mFront_bbg;
-GLuint *mFront_bbgd = pArgs->mFront_bbgd;
+	ARGS* pArgs = (ARGS*)pArgs_;
+	GLuint* mFront_left = pArgs->mFront_left;
+	GLuint* mFront_dleft = pArgs->mFront_dleft;
+	GLuint* mFront_aleft = pArgs->mFront_aleft;
+	GLuint* mFront_bg = pArgs->mFront_bg;
+	GLuint* mFront_bgd = pArgs->mFront_bgd;
+	GLuint* mFront_bbg = pArgs->mFront_bbg;
+	GLuint* mFront_bbgd = pArgs->mFront_bbgd;
 
-GLuint *mBack_left = pArgs->mBack_left;
-GLuint *mBack_dleft = pArgs->mBack_dleft;
-GLuint *mBack_aleft = pArgs->mBack_aleft;
-GLuint *mBack_bg = pArgs->mBack_bg;
-GLuint *mBack_bgd = pArgs->mBack_bgd;
-GLuint *mBack_bbg = pArgs->mBack_bbg;
-GLuint *mBack_bbgd = pArgs->mBack_bbgd;
+	GLuint* mBack_left = pArgs->mBack_left;
+	GLuint* mBack_dleft = pArgs->mBack_dleft;
+	GLuint* mBack_aleft = pArgs->mBack_aleft;
+	GLuint* mBack_bg = pArgs->mBack_bg;
+	GLuint* mBack_bgd = pArgs->mBack_bgd;
+	GLuint* mBack_bbg = pArgs->mBack_bbg;
+	GLuint* mBack_bbgd = pArgs->mBack_bbgd;
 
-GLuint *black_text = pArgs->black_text;
+	GLuint* black_text = pArgs->black_text;
 
-GLuint *bga_text = pArgs->bga_text;
-
-
-bool *fl_terminate = pArgs->fl_terminate;
-bool *fl_write = pArgs->fl_write;
-bool *pause_all = pArgs->pause_all;
+	GLuint* bga_text = pArgs->bga_text;
 
 
-std::swap(*mFront_dleft, *mBack_dleft);
-std::swap(*mFront_left, *mBack_left);
-std::swap(*mFront_aleft, *mBack_aleft);
-std::swap(*mFront_bg, *mBack_bg);
-std::swap(*mFront_bgd, *mBack_bgd);
-std::swap(*mFront_bbg, *mBack_bbg);
-std::swap(*mFront_bbgd, *mBack_bbgd);
+	bool* fl_terminate = pArgs->fl_terminate;
+	bool* fl_write = pArgs->fl_write;
+	bool* pause_all = pArgs->pause_all;
 
 
-//Get number of frames (duration)
-a_video.open(a_filename);
-if (!a_video.isOpened()) {
-	std::cout << "cannot read depth video!\n";
-}
-frames = int(a_video.get(CV_CAP_PROP_FRAME_COUNT));
-width = int(a_video.get(CV_CAP_PROP_FRAME_WIDTH));
-height = int(a_video.get(CV_CAP_PROP_FRAME_HEIGHT));
-FPSvideo = float(a_video.get(CV_CAP_PROP_FPS));
-//FPSvideo = 10.0f;
-a_video.release();
-
-//GRAMMA CORRECTION LOOKUP TABLE
-double inverse_gamma = 1.02;
-cv::Mat lut_matrix(1, 256, CV_8UC1);
-uchar * ptr = lut_matrix.ptr();
-for (int i = 0; i < 256; i++)
-	ptr[i] = (int)(pow((double)i / 255.0, inverse_gamma) * 255.0);
+	std::swap(*mFront_dleft, *mBack_dleft);
+	std::swap(*mFront_left, *mBack_left);
+	std::swap(*mFront_aleft, *mBack_aleft);
+	std::swap(*mFront_bg, *mBack_bg);
+	std::swap(*mFront_bgd, *mBack_bgd);
+	std::swap(*mFront_bbg, *mBack_bbg);
+	std::swap(*mFront_bbgd, *mBack_bbgd);
 
 
-bbgd_img = cv::imread(bbgd_filename);
-cv::flip(bbgd_img, bbgd_img, 0);
-
-bbg_img = cv::imread(bbg_filename);
-cv::flip(bbg_img, bbg_img, 0);
-LUT(bbg_img, lut_matrix, bbg_img);
-
-
-//Open videos, read first images
-g_video.open(g_filename);
-if (!g_video.isOpened()) {
-	std::cout << "cannot read rgb video!\n";
-}
-g_video.read(img);
-img1 = img;
-cv::flip(img1, img1, 0);
-
-//
-d_video.open(d_filename);
-if (!d_video.isOpened()) {
-	std::cout << "cannot read video!\n";
-}
-d_video.read(d_img1);
-cv::flip(d_img1, d_img1, 0);
-//
-a_video.open(a_filename);
-if (!a_video.isOpened()) {
-	std::cout << "cannot read video!\n";
-}
-a_video.read(a_img);
-cv::flip(a_img, a_img, 0);
-
-bg_img = cv::imread(bg_filename);
-cv::flip(bg_img, bg_img, 0);
-LUT(bg_img, lut_matrix, bg_img);
-
-bgd_img = cv::imread(bgd_filename);
-cv::flip(bgd_img, bgd_img, 0);
-
-bga_img = cv::imread(bga_filename);
-cv::flip(bga_img, bga_img, 0);
-
-
-black_img = cv::imread("Resources/black.png");
-
-
-//Textures
-glGenTextures(1, black_text);
-glBindTexture(GL_TEXTURE_2D, *black_text);
-glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, black_img.cols, black_img.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, black_img.data);
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-glBindTexture(GL_TEXTURE_2D, 0);
-
-glGenTextures(1, mBack_left);
-glBindTexture(GL_TEXTURE_2D, *mBack_left);
-glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB, img1.cols, img1.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, img1.data);
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-glBindTexture(GL_TEXTURE_2D, 0);
-
-glGenTextures(1, mBack_dleft);
-glBindTexture(GL_TEXTURE_2D, *mBack_dleft);
-glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, d_img1.cols, d_img1.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, d_img1.data);
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-glBindTexture(GL_TEXTURE_2D, 0);
-
-glGenTextures(1, mBack_aleft);
-glBindTexture(GL_TEXTURE_2D, *mBack_aleft);
-glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, a_img.cols, a_img.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, a_img.data);
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-glBindTexture(GL_TEXTURE_2D, 0);
-
-glGenTextures(1, mBack_bg);
-glBindTexture(GL_TEXTURE_2D, *mBack_bg);
-glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, bg_img.cols, bg_img.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, bg_img.data);
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-glBindTexture(GL_TEXTURE_2D, 0);
-
-glGenTextures(1, mBack_bgd);
-glBindTexture(GL_TEXTURE_2D, *mBack_bgd);
-glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, bgd_img.cols, bgd_img.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, bgd_img.data);
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-glBindTexture(GL_TEXTURE_2D, 0);
-
-glGenTextures(1, bga_text);
-glBindTexture(GL_TEXTURE_2D, *bga_text);
-glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, bga_img.cols, bga_img.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, bga_img.data);
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-glBindTexture(GL_TEXTURE_2D, 0);
-
-glGenTextures(1, mBack_bbgd);
-glBindTexture(GL_TEXTURE_2D, *mBack_bbgd);
-glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, bbgd_img.cols, bbgd_img.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, bbgd_img.data);
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-glBindTexture(GL_TEXTURE_2D, 0);
-
-glGenTextures(1, mFront_bbg);
-glBindTexture(GL_TEXTURE_2D, *mFront_bbg);
-glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, bbg_img.cols, bbg_img.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, bbg_img.data);
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-glBindTexture(GL_TEXTURE_2D, 0);
-
-
-std::swap(*mFront_dleft, *mBack_dleft);
-std::swap(*mFront_left, *mBack_left);
-std::swap(*mFront_aleft, *mBack_aleft);
-std::swap(*mFront_bg, *mBack_bg);
-std::swap(*mFront_bgd, *mBack_bgd);
-//std::swap(*mFront_bbg, *mBack_bbg);
-std::swap(*mFront_bbgd, *mBack_bbgd);
-
-bool pause = false;
-int framecount = 1;
-int refresh = 0;
-
-clock_t eF = clock();
-clock_t DTime = 0;
-
-Sleep(1000);
-*fl_write = true;
-
-//Read new frames, update textures
-while (Platform.HandleMessages())
-{	
-
-	//PAUSE - CONTINUE	
-	if (Platform.Key[VK_SPACE]) {
-		pause = !pause;
-		Platform.Key[VK_SPACE] = false;
- 		*pause_all = !(*pause_all);
+	//Get number of frames (duration)
+	a_video.open(a_filename);
+	if (!a_video.isOpened()) {
+		std::cout << "cannot read depth video!\n";
 	}
+	frames = int(a_video.get(CV_CAP_PROP_FRAME_COUNT));
+	width = int(a_video.get(CV_CAP_PROP_FRAME_WIDTH));
+	height = int(a_video.get(CV_CAP_PROP_FRAME_HEIGHT));
+	FPSvideo = float(a_video.get(CV_CAP_PROP_FPS));
+	//FPSvideo = 10.0f;
+	a_video.release();
 
-	DTime = clock() - eF;
-	//FPSvideo = 1;
-	if ((clockToMilliseconds(DTime) > (1.0/ (FPSvideo))*1000.0) || refresh)  //every second
+	//GRAMMA CORRECTION LOOKUP TABLE
+	double inverse_gamma = 1.02;
+	cv::Mat lut_matrix(1, 256, CV_8UC1);
+	uchar* ptr = lut_matrix.ptr();
+	for (int i = 0; i < 256; i++)
+		ptr[i] = (int)(pow((double)i / 255.0, inverse_gamma) * 255.0);
+
+
+	bbgd_img = cv::imread(bbgd_filename);
+	cv::flip(bbgd_img, bbgd_img, 0);
+
+	bbg_img = cv::imread(bbg_filename);
+	cv::flip(bbg_img, bbg_img, 0);
+	LUT(bbg_img, lut_matrix, bbg_img);
+
+
+	//Open videos, read first images
+	g_video.open(g_filename);
+	if (!g_video.isOpened()) {
+		std::cout << "cannot read rgb video!\n";
+	}
+	g_video.read(img);
+	img1 = img;
+	cv::flip(img1, img1, 0);
+
+	//
+	d_video.open(d_filename);
+	if (!d_video.isOpened()) {
+		std::cout << "cannot read video!\n";
+	}
+	d_video.read(d_img1);
+	cv::flip(d_img1, d_img1, 0);
+	//
+	a_video.open(a_filename);
+	if (!a_video.isOpened()) {
+		std::cout << "cannot read video!\n";
+	}
+	a_video.read(a_img);
+	cv::flip(a_img, a_img, 0);
+
+	bg_img = cv::imread(bg_filename);
+	cv::flip(bg_img, bg_img, 0);
+	LUT(bg_img, lut_matrix, bg_img);
+
+	bgd_img = cv::imread(bgd_filename);
+	cv::flip(bgd_img, bgd_img, 0);
+
+	bga_img = cv::imread(bga_filename);
+	cv::flip(bga_img, bga_img, 0);
+
+
+	black_img = cv::imread("Resources/black.png");
+
+
+	//Textures
+	glGenTextures(1, black_text);
+	glBindTexture(GL_TEXTURE_2D, *black_text);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, black_img.cols, black_img.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, black_img.data);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glGenTextures(1, mBack_left);
+	glBindTexture(GL_TEXTURE_2D, *mBack_left);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB, img1.cols, img1.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, img1.data);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glGenTextures(1, mBack_dleft);
+	glBindTexture(GL_TEXTURE_2D, *mBack_dleft);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, d_img1.cols, d_img1.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, d_img1.data);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glGenTextures(1, mBack_aleft);
+	glBindTexture(GL_TEXTURE_2D, *mBack_aleft);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, a_img.cols, a_img.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, a_img.data);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glGenTextures(1, mBack_bg);
+	glBindTexture(GL_TEXTURE_2D, *mBack_bg);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, bg_img.cols, bg_img.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, bg_img.data);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glGenTextures(1, mBack_bgd);
+	glBindTexture(GL_TEXTURE_2D, *mBack_bgd);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, bgd_img.cols, bgd_img.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, bgd_img.data);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glGenTextures(1, bga_text);
+	glBindTexture(GL_TEXTURE_2D, *bga_text);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, bga_img.cols, bga_img.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, bga_img.data);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glGenTextures(1, mBack_bbgd);
+	glBindTexture(GL_TEXTURE_2D, *mBack_bbgd);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, bbgd_img.cols, bbgd_img.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, bbgd_img.data);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glGenTextures(1, mFront_bbg);
+	glBindTexture(GL_TEXTURE_2D, *mFront_bbg);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, bbg_img.cols, bbg_img.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, bbg_img.data);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+
+	std::swap(*mFront_dleft, *mBack_dleft);
+	std::swap(*mFront_left, *mBack_left);
+	std::swap(*mFront_aleft, *mBack_aleft);
+	std::swap(*mFront_bg, *mBack_bg);
+	std::swap(*mFront_bgd, *mBack_bgd);
+	//std::swap(*mFront_bbg, *mBack_bbg);
+	std::swap(*mFront_bbgd, *mBack_bbgd);
+
+	bool pause = false;
+	int framecount = 1;
+	int refresh = 0;
+
+	clock_t eF = clock();
+	clock_t DTime = 0;
+
+	Sleep(1000);
+	*fl_write = true;
+
+	//Read new frames, update textures
+	while (Platform.HandleMessages())
 	{
-		eF = clock();
-		if (pause && refresh==0)
-			continue;
-		
-		if (pause && refresh > 0)
-		{
-			refresh--;
-			framecount--;
+
+		//PAUSE - CONTINUE	
+		if (Platform.Key[VK_SPACE]) {
+			pause = !pause;
+			Platform.Key[VK_SPACE] = false;
+			*pause_all = !(*pause_all);
 		}
 
-		//VIDEO IMG
-		g_video.read(img);	
-		//LUT(img, lut_matrix, img);
-		img1 = img;
-		cv::flip(img1, img1, 0);
-
-		//DEPTH IMG
-		d_video.read(d_img1);
-		cv::flip(d_img1, d_img1, 0);
-
-		//ALPHA IMG
-		a_video.read(a_img);
-		cv::flip(a_img, a_img, 0);
-		
-
-		glBindTexture(GL_TEXTURE_2D, *mBack_left);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img1.cols, img1.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, img1.data);
-		glBindTexture(GL_TEXTURE_2D, 0);
-
-		glBindTexture(GL_TEXTURE_2D, *mBack_dleft);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, d_img1.cols, d_img1.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, d_img1.data);
-		glBindTexture(GL_TEXTURE_2D, 0);
-
-		glBindTexture(GL_TEXTURE_2D, *mBack_aleft);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, a_img.cols, a_img.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, a_img.data);
-		glBindTexture(GL_TEXTURE_2D, 0);
-
-
-		std::swap(mFront_left, mBack_left);
-		std::swap(mFront_dleft, mBack_dleft);
-		std::swap(mFront_aleft, mBack_aleft);
-
-		framecount++;
-		
-		if (framecount == frames)
+		DTime = clock() - eF;
+		//FPSvideo = 1;
+		if ((clockToMilliseconds(DTime) > (1.0 / (FPSvideo)) * 1000.0) || refresh)  //every second
 		{
-			*fl_terminate = true;
-			//ExitThread(0);
-			framecount = 1;
-			g_video.set(CV_CAP_PROP_POS_FRAMES, framecount);
-			d_video.set(CV_CAP_PROP_POS_FRAMES, framecount);
-			a_video.set(CV_CAP_PROP_POS_FRAMES, framecount);			
+			eF = clock();
+			if (pause && refresh == 0)
+				continue;
+
+			if (pause && refresh > 0)
+			{
+				refresh--;
+				framecount--;
+			}
+
+			//VIDEO IMG
+			g_video.read(img);
+			//LUT(img, lut_matrix, img);
+			img1 = img;
+			cv::flip(img1, img1, 0);
+
+			//DEPTH IMG
+			d_video.read(d_img1);
+			cv::flip(d_img1, d_img1, 0);
+
+			//ALPHA IMG
+			a_video.read(a_img);
+			cv::flip(a_img, a_img, 0);
+
+
+			glBindTexture(GL_TEXTURE_2D, *mBack_left);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img1.cols, img1.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, img1.data);
+			glBindTexture(GL_TEXTURE_2D, 0);
+
+			glBindTexture(GL_TEXTURE_2D, *mBack_dleft);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, d_img1.cols, d_img1.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, d_img1.data);
+			glBindTexture(GL_TEXTURE_2D, 0);
+
+			glBindTexture(GL_TEXTURE_2D, *mBack_aleft);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, a_img.cols, a_img.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, a_img.data);
+			glBindTexture(GL_TEXTURE_2D, 0);
+
+
+			std::swap(mFront_left, mBack_left);
+			std::swap(mFront_dleft, mBack_dleft);
+			std::swap(mFront_aleft, mBack_aleft);
+
+			framecount++;
+
+			if (framecount == frames)
+			{
+				*fl_terminate = true;
+				//ExitThread(0);
+				framecount = 1;
+				g_video.set(CV_CAP_PROP_POS_FRAMES, framecount);
+				d_video.set(CV_CAP_PROP_POS_FRAMES, framecount);
+				a_video.set(CV_CAP_PROP_POS_FRAMES, framecount);
+			}
 		}
 	}
 }
-}
 
-LPSTR* CommandLineToArgvA(_In_opt_ LPCSTR lpCmdLine, _Out_ int *pNumArgs)
+LPSTR* CommandLineToArgvA(_In_opt_ LPCSTR lpCmdLine, _Out_ int* pNumArgs)
 {
 	if (!pNumArgs)
 	{
@@ -821,7 +821,7 @@ LPSTR* CommandLineToArgvA(_In_opt_ LPCSTR lpCmdLine, _Out_ int *pNumArgs)
 		by 2 [pointers] + the length of the program name (+1 for null terminating character)
 		multiplied by the sizeof CHAR. HeapAlloc is called with HEAP_GENERATE_EXCEPTIONS flag,
 		so if there is a failure on allocating memory an exception will be generated.*/
-		LPSTR *argv = static_cast<LPSTR*>(HeapAlloc(GetProcessHeap(),
+		LPSTR* argv = static_cast<LPSTR*>(HeapAlloc(GetProcessHeap(),
 			HEAP_ZERO_MEMORY | HEAP_GENERATE_EXCEPTIONS,
 			(sizeof(LPSTR) * 2) + ((pnlength + 1) * sizeof(CHAR))));
 		memcpy(argv + 2, programname, pnlength + 1); //add 1 for the terminating null character
@@ -837,11 +837,11 @@ LPSTR* CommandLineToArgvA(_In_opt_ LPCSTR lpCmdLine, _Out_ int *pNumArgs)
 	int numchars = 0;
 	LPCSTR templpcl = lpCmdLine;
 	bool in_quotes = false;  //'in quotes' mode is off (false) or on (true)
-							 /*first scan the program name and copy it. The handling is much simpler than for other
-							 arguments. Basically, whatever lies between the leading double-quote and next one, or a
-							 terminal null character is simply accepted. Fancier handling is not required because the
-							 program name must be a legal NTFS/HPFS file name. Note that the double-quote characters are
-							 not copied.*/
+	/*first scan the program name and copy it. The handling is much simpler than for other
+	arguments. Basically, whatever lies between the leading double-quote and next one, or a
+	terminal null character is simply accepted. Fancier handling is not required because the
+	program name must be a legal NTFS/HPFS file name. Note that the double-quote characters are
+	not copied.*/
 	do {
 		if (*templpcl == '"')
 		{
@@ -879,7 +879,7 @@ LPSTR* CommandLineToArgvA(_In_opt_ LPCSTR lpCmdLine, _Out_ int *pNumArgs)
 			break; //end of arguments
 
 		++argc; //next argument - increment argument count
-				//loop through this argument
+		//loop through this argument
 		for (;;)
 		{
 			/*Rules:
@@ -943,7 +943,7 @@ LPSTR* CommandLineToArgvA(_In_opt_ LPCSTR lpCmdLine, _Out_ int *pNumArgs)
 	size of a LPSTR (char*) multiplied by argc + 1 pointers + the number of characters counted
 	above multiplied by the sizeof CHAR. HeapAlloc is called with HEAP_GENERATE_EXCEPTIONS
 	flag, so if there is a failure on allocating memory an exception will be generated.*/
-	LPSTR *argv = static_cast<LPSTR*>(HeapAlloc(GetProcessHeap(),
+	LPSTR* argv = static_cast<LPSTR*>(HeapAlloc(GetProcessHeap(),
 		HEAP_ZERO_MEMORY | HEAP_GENERATE_EXCEPTIONS,
 		(sizeof(LPSTR) * (argc + 1)) + (numchars * sizeof(CHAR))));
 	//now loop through the commandline again and split out arguments
@@ -993,7 +993,7 @@ LPSTR* CommandLineToArgvA(_In_opt_ LPCSTR lpCmdLine, _Out_ int *pNumArgs)
 		if (*templpcl == '\0')
 			break; //end of arguments
 		argv[currentarg] = ++tempargv; //copy address of this argument string
-									   //next argument - loop through it's characters
+		//next argument - loop through it's characters
 		for (;;)
 		{
 			/*Rules:
