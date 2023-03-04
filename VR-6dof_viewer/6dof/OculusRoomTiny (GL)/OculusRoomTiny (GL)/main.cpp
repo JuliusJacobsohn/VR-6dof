@@ -85,8 +85,6 @@ char mode[200];
 char testID[200];
 char visID[200];
 
-std::string audiofile;
-
 bool poly_mesh = false;
 bool positional_track = true;
 bool stereo = true;
@@ -114,7 +112,6 @@ cv::Mat bga_img;
 std::ofstream headpose;
 
 void VideoThread(LPVOID pArgs_);
-void AudioThread(LPVOID pArgs_);
 
 
 static ovrGraphicsLuid GetDefaultAdapterLuid()
@@ -196,13 +193,6 @@ static bool MainLoop(bool retryCreate)
 	
 	HANDLE threadDecoding;
 	threadDecoding = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)VideoThread, &args, 0, NULL);
-	///////////////////////////////////////////////////////////////////////////////////////////////////
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////
-	//CREATE AUDIO THREAD
-	ARGS_aud args_aud = { &fl_write, &fl_terminate, &audiofile, &pause_all};
-	HANDLE threadAudioPlaying;
-	threadAudioPlaying = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)AudioThread, &args_aud, 0, NULL);
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 
 	// Make eye render buffers
@@ -528,49 +518,6 @@ Done:
 
 	// Retry on ovrError_DisplayLost
 	return retryCreate || (result == ovrError_DisplayLost);
-}
-
-//Thread for handling audio
-void AudioThread(LPVOID pArgs_)
-{
-	ARGS_aud *pArgs = (ARGS_aud*)pArgs_;
-	bool *fl_write = pArgs->fl_write;
-	bool *fl_terminate = pArgs->fl_terminate;
-	std::string *audiofile = pArgs->audiofile;
-	bool *pause_all = pArgs->pause_all;
-	std::string audiofilename = *audiofile;
-	const char *cstr = audiofilename.c_str();
-	bool pause_sound;
-	
-
-	ISoundEngine* engine = createIrrKlangDevice();
-	if (!engine)
-	{
-		printf("Could not startup engine\n");
-	}
-
-	bool played = false;
-	while (Platform.HandleMessages())
-	{
-		
-
-		if (*fl_write == true & played == false)
-		{
-			Sleep(1500.0f);
-			engine->play2D(cstr, true);
-			played = true;
-		}
-		if (*fl_terminate == true)
-		{
-			*fl_terminate = false;
-			engine->stopAllSounds();
-			engine->play2D(cstr, true);
-			played = true;
-			//ExitThread(0);
-		}
-
-		engine->setAllSoundsPaused(*pause_all);
-	}
 }
 
 //Thread for handling video decoding
@@ -1199,8 +1146,6 @@ int WINAPI WinMain(HINSTANCE hinst, HINSTANCE, LPSTR lpCmdLine, int)
 			sprintf(bbgd1_filename, "%s_BGD_inp.png", buffer_name);
 			sprintf(a1_filename, "%s_alphaproc.mp4", buffer_name);
 			sprintf(bga1_filename, "%s_BGA.png", buffer_name);
-			sprintf(buffer, "%s%s_audio.mp3", video_path, buffer_name);
-			audiofile = buffer;
 			sprintf(data_filename, "%s%s-%s-%s-%s-%s.txt", data_path, userID, testID, mode, visID, buffer_name);
 		}
 	}

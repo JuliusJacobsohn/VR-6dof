@@ -45,13 +45,6 @@ struct ARGS
 	bool *fl_write, *fl_terminate, *pause_all;
 };
 
-struct ARGS_aud
-{
-	bool *fl_write, *fl_terminate;
-	std::string *audiofile;
-	bool *pause_all;
-};
-
 
 std::string loadShader(const char* filepath)
 {
