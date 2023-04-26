@@ -1025,6 +1025,7 @@ struct Model
 		}
 
 		/////////////////////////////////////////////////////////////////////////////////////
+		//Foreground layer (video)
 		if (layers >= 3.0f) {
 			GLuint shader_mov = Shaders[2]->program;
 			glUseProgram(shader_mov);
