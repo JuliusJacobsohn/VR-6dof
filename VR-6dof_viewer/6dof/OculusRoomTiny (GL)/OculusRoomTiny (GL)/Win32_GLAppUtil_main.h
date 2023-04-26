@@ -918,6 +918,7 @@ struct Model
 		GLuint colorLoc;
 		GLuint uvLoc;
 		/////////////////////////////////////////////////////////////////////////////////////
+		//Inpainting layer (static background)
 
 		GLuint shader_bg = Shaders[0]->program;
 		glUseProgram(shader_bg);
@@ -966,6 +967,7 @@ struct Model
 		glUseProgram(0);
 
 		////////////////////////////////////////////////////////////////////////////////////
+		//Background layer (dynamic background)
 		if (layers >= 2.0f) {
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
