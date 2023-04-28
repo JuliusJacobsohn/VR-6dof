@@ -27,6 +27,20 @@
     <ClInclude Include="..\..\..\..\..\..\LibOVRKernel\Src\GL\CAPI_GLE_GL.h" />
     <ClInclude Include="..\..\..\Win32_GLAppUtil_main.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="Resources\black.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\FragmentShader-bg_simple.fs" />
+    <None Include="Resources\FragmentShader-black.fs" />
+    <None Include="Resources\FragmentShader-fg_simple.fs" />
+    <None Include="Resources\FragmentShader-mov_simple.fs" />
+    <None Include="Resources\VertexShader-bg_simple.vs" />
+    <None Include="Resources\VertexShader-black.vs" />
+    <None Include="Resources\VertexShader-fg_simple.vs" />
+    <None Include="Resources\VertexShader-mov_simple.vs" />
+    <None Include="Resources\VertexShader-simple-simple.vs" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{A5C85DE1-FCAF-4824-8A54-40BB3B6125B3}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
