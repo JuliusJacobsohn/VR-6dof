@@ -24,7 +24,8 @@ void main()
 	{
 		vec3 purple = vec3(0.4,0.1,0.8);
 		vec3 purpleish = vec3(mix(desaturated, purple, 0.5));		
-		FragColor = vec4(purpleish, 1.0);
-	
+		FragColor = vec4(purpleish, 1.0);	
 	}
+
+	//FragColor.b = 1.0;
 }

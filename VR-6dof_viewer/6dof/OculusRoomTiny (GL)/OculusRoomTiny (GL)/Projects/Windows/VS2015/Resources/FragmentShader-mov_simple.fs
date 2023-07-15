@@ -45,8 +45,8 @@ void main()
 	{
 		vec3 yellow = vec3(0.9,0.8,0.2);
 		vec3 yewllowish = vec3(mix(desaturated, yellow, 0.5));		
-		FragColor = vec4(yewllowish, corrected);
-	
+		FragColor = vec4(yewllowish, corrected);	
 	}
+	//FragColor.r = 1.0;
 
 }
