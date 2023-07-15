@@ -1,2 +1,2 @@
 Path 			  vids/
-VideoName 		  pier
+VideoName 		  cafeteria
