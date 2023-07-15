@@ -24,27 +24,18 @@ out vec4 FragColor;
 void main()
 {
     float dist = 0.05+sqrt(pow(headposition.y-spherecenter.y,2) + pow(headposition.z-spherecenter.z,2) + pow(headposition.z-spherecenter.z,2));
-    vec3 fgbcolor = texture2D(fgtext, oTexCoord2).rgb;
+    vec3 rgbcolor = texture2D(fgtext, oTexCoord2).rgb;
     float alpha = texture2D(alphamask, oTexCoord2).r;
     
     float k = 30.0;
     float c = 0.15;
     float Scurve = 1.0 / (1.0 + pow(M_E, -k*(dist-c)));
-
     
     float corrected  = abs((1-Scurve)*1.0 + alpha*(Scurve));
-    vec3 gray = vec3(dot(vec3(0.2126,0.7152,0.0722), fgbcolor));
-    vec3 desaturated = vec3(mix(fgbcolor, gray, desat));
     
-    if (colored == 0)
+    FragColor = vec4(rgbcolor, corrected);
+    if (colored != 0)
     {
-        FragColor = vec4(desaturated, corrected);
+        FragColor.r = 1.0;
     }
-    else
-    {
-        vec3 yellow = vec3(0.9,0.8,0.2);
-        vec3 yewllowish = vec3(mix(desaturated, yellow, 0.5));
-        FragColor = vec4(yewllowish, corrected);
-    }
-    //FragColor.r = 1.0;
 }
