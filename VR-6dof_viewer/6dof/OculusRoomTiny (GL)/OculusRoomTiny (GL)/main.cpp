@@ -85,7 +85,7 @@ char mode[200];
 char testID[200];
 char visID[200];
 
-bool poly_mesh = false;
+bool poly_mesh = true;
 bool positional_track = true;
 double layers = 3.0;
 bool colored = false; //Show colors: r = foreground, g = background, b = inpainting
@@ -582,11 +582,11 @@ void VideoThread(LPVOID pArgs_)
 	a_video.release();
 
 	//GRAMMA CORRECTION LOOKUP TABLE
-	double inverse_gamma = 1.02;
+	/*double inverse_gamma = 1.02;
 	cv::Mat lut_matrix(1, 256, CV_8UC1);
 	uchar* ptr = lut_matrix.ptr();
 	for (int i = 0; i < 256; i++)
-		ptr[i] = (int)(pow((double)i / 255.0, inverse_gamma) * 255.0);
+		ptr[i] = (int)(pow((double)i / 255.0, inverse_gamma) * 255.0);*/
 
 
 	bbgd_img = cv::imread(bbgd_filename);
@@ -594,7 +594,7 @@ void VideoThread(LPVOID pArgs_)
 
 	bbg_img = cv::imread(bbg_filename);
 	cv::flip(bbg_img, bbg_img, 0);
-	LUT(bbg_img, lut_matrix, bbg_img);
+	//LUT(bbg_img, lut_matrix, bbg_img);
 
 
 	//Open videos, read first images
@@ -623,7 +623,7 @@ void VideoThread(LPVOID pArgs_)
 
 	bg_img = cv::imread(bg_filename);
 	cv::flip(bg_img, bg_img, 0);
-	LUT(bg_img, lut_matrix, bg_img);
+	//LUT(bg_img, lut_matrix, bg_img);
 
 	bgd_img = cv::imread(bgd_filename);
 	cv::flip(bgd_img, bgd_img, 0);
