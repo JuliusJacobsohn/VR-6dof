@@ -31,9 +31,9 @@ void main()
     float c = 0.15;
     float Scurve = 1.0 / (1.0 + pow(M_E, -k*(dist-c)));
     
-    float corrected  = abs((1-Scurve)*1.0 + alpha*(Scurve));
+    float corrected_alpha  = abs((1-Scurve)*1.0 + alpha*(Scurve));
     
-    FragColor = vec4(rgbcolor, corrected);
+    FragColor = vec4(rgbcolor, corrected_alpha);
     if (colored != 0)
     {
         FragColor.r = 1.0;
