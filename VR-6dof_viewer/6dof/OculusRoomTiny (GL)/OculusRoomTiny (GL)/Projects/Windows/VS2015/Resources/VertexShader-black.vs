@@ -11,7 +11,7 @@ void main()
 {
 //float dbbg = texture2D(depthbg, TexCoord).r;
 //float imgdepth = 0.299999999999999999f / (dbbg + 0.001f);
-float imgdepth = radius;
+float imgdepth = radius*10;
 vec4 pos = vec4( Position.x * imgdepth, Position.y * imgdepth, Position.z * imgdepth, 1 );
 gl_Position = (matWVP * pos);
 oTexCoord   = TexCoord;
