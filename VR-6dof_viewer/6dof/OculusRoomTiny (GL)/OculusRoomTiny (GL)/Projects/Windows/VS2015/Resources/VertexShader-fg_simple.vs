@@ -7,6 +7,9 @@ in      vec4 Color2;
 in      vec2 TexCoord2;
 out     vec2 oTexCoord2;
 out     vec4 oColor2;
+///////////////////////////////////////////////
+// Background layer
+/////////////////////////////////////////////////
 void main()
 {
 	float bdepth = texture2D(fgdepth, TexCoord2).r;

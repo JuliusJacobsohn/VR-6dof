@@ -7,6 +7,9 @@ in      vec4 Color;
 in      vec2 TexCoord;
 out     vec2 oTexCoord;
 out     vec4 oColor;
+///////////////////////////////////////////////
+// Probably bounding sphere for user limits
+/////////////////////////////////////////////////
 void main()
 {
 //float dbbg = texture2D(depthbg, TexCoord).r;

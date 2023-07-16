@@ -8,6 +8,9 @@ in      vec4 Color;
 in      vec2 TexCoord;
 out     vec2 oTexCoord;
 out     vec4 oColor;
+///////////////////////////////////////////////
+// Inpainting layer
+/////////////////////////////////////////////////
 void main()
 {
 	float dbbg = texture2D(depthbg, TexCoord).r;

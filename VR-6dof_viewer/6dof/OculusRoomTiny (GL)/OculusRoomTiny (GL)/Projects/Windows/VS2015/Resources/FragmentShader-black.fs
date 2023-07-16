@@ -7,7 +7,7 @@ in      vec2      oTexCoord;
 out     vec4      FragColor;
 
 ///////////////////////////////////////////////
-// Main
+// Probably bounding sphere for user limits
 /////////////////////////////////////////////////
 void main()
 {
