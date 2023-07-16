@@ -87,15 +87,16 @@ char visID[200];
 
 bool poly_mesh = false;
 bool positional_track = true;
-bool stereo = true;
-bool render_depth = false;
 double layers = 3.0;
-bool colored = false;
+bool colored = false; //Show colors: r = foreground, g = background, b = inpainting
 bool render_simple = false;
-bool vis_fade = false;
-bool vis_clamp = false;
-bool auto_camera = false;
-bool auto_results = false;
+
+bool vis_fade = false; //Enable the bounding sphere that limits movement
+bool vis_clamp = false; //probably unused
+bool auto_camera = false; //probably unused
+bool auto_results = false; //probably unused
+bool stereo = true; //probably unused
+bool render_depth = false; //probably unused
 
 int frames, width, height;
 float FPSvideo;
